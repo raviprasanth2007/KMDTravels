@@ -1,6 +1,8 @@
 import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import { KMD_CONFIG } from "@/constants/config";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { fadeUpVariant, staggerContainerVariant } from "@/lib/animations";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -11,11 +13,17 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-navy text-gray-300">
-      <div className="container-default py-14">
+    <footer className="bg-navy text-gray-300 overflow-hidden">
+      <motion.div 
+        className="container-default py-14"
+        variants={staggerContainerVariant}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
-          <div className="lg:col-span-1">
+          <motion.div variants={fadeUpVariant} className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-9 h-9 bg-orange-brand rounded-lg flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-white" strokeWidth={2.5} />
@@ -29,7 +37,9 @@ export default function Footer() {
               Reliable, comfortable and affordable travel across India. Serving passengers since {year - parseInt(KMD_CONFIG.yearsInBusiness)} from Sathyamangalam, Erode.
             </p>
             <div className="flex gap-3">
-              <a
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 href={`https://wa.me/${KMD_CONFIG.whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -37,19 +47,21 @@ export default function Footer() {
               >
                 <MessageCircle className="w-4 h-4" />
                 WhatsApp
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 href={`tel:${KMD_CONFIG.phone}`}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 <Phone className="w-4 h-4" />
                 Call Us
-              </a>
+              </motion.a>
             </div>
-          </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <div>
+          <motion.div variants={fadeUpVariant}>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               {["Home", "About", "Vehicles", "Services", "Book Now", "Contact"].map((item) => (
@@ -63,10 +75,10 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Services */}
-          <div>
+          <motion.div variants={fadeUpVariant}>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Services</h4>
             <ul className="space-y-2 text-sm">
               {["Outstation Taxi", "One-Way Trips", "Round Trips", "Airport Transfers", "Railway Transfers", "Corporate Travel", "Group Travel", "Tourist Trips"].map((s) => (
@@ -75,10 +87,10 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Contact */}
-          <div>
+          <motion.div variants={fadeUpVariant}>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
@@ -98,9 +110,9 @@ export default function Footer() {
                 <span className="text-sm text-gray-400">{KMD_CONFIG.rating}/5 Rating</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Bottom bar */}
       <div className="border-t border-white/10">

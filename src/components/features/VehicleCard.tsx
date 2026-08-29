@@ -2,6 +2,8 @@ import { Users, Briefcase, Zap, CheckCircle } from "lucide-react";
 import { Vehicle } from "@/constants/vehicles";
 import { formatCurrency } from "@/lib/fareCalculator";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeUpVariant } from "@/lib/animations";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -21,37 +23,49 @@ export default function VehicleCard({
   const isDisabled = vehicle.capacity < passengers;
 
   return (
-    <div
+    <motion.div
+      variants={fadeUpVariant}
+      whileHover={!isDisabled ? { y: -5, scale: 1.01, boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" } : {}}
       className={cn(
-        "relative rounded-xl border-2 overflow-hidden transition-all duration-300 cursor-pointer",
+        "relative rounded-xl border-2 overflow-hidden transition-colors cursor-pointer",
         isDisabled
           ? "opacity-40 cursor-not-allowed border-gray-200 bg-gray-50"
           : isSelected
-          ? "border-travel-blue shadow-xl bg-blue-50/50 scale-[1.01]"
-          : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-lg"
+          ? "border-travel-blue bg-blue-50/50 shadow-md"
+          : "border-gray-200 bg-white"
       )}
       onClick={() => !isDisabled && onSelect(vehicle.id)}
     >
       {/* Recommended badge */}
       {isRecommended && !isDisabled && (
-        <div className="absolute top-3 right-3 z-10 bg-orange-brand text-white text-xs font-bold px-3 py-1 rounded-full">
+        <div className="absolute top-3 right-3 z-10 bg-orange-brand text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
           Recommended
         </div>
       )}
 
       {/* Selected indicator */}
-      {isSelected && (
-        <div className="absolute top-3 left-3 z-10">
-          <CheckCircle className="w-6 h-6 text-travel-blue fill-white" />
-        </div>
-      )}
+      <AnimatePresence>
+        {isSelected && (
+          <motion.div 
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="absolute top-3 left-3 z-10"
+          >
+            <CheckCircle className="w-6 h-6 text-travel-blue fill-white" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Vehicle Image */}
       <div className="h-44 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
-        <img
+        <motion.img
+          animate={isSelected ? { scale: 1.05 } : { scale: 1 }}
+          transition={{ duration: 0.3 }}
           src={vehicle.image}
           alt={vehicle.name}
-          className="h-36 object-contain mix-blend-multiply"
+          className="h-36 object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
             (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=250&fit=crop&auto=format`;
           }}
@@ -97,7 +111,8 @@ export default function VehicleCard({
             Driver allowance {formatCurrency(vehicle.driverAllowancePerDay)}/day
           </div>
 
-          <button
+          <motion.button
+            whileTap={!isDisabled ? { scale: 0.95 } : {}}
             disabled={isDisabled}
             onClick={() => !isDisabled && onSelect(vehicle.id)}
             className={cn(
@@ -114,9 +129,9 @@ export default function VehicleCard({
               : isSelected
               ? "✓ Selected"
               : "Select Vehicle"}
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

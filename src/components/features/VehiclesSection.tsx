@@ -1,6 +1,8 @@
 import { Users, Briefcase, Zap } from "lucide-react";
 import { VEHICLES } from "@/constants/vehicles";
 import { formatCurrency } from "@/lib/fareCalculator";
+import { motion } from "framer-motion";
+import { fadeUpVariant, staggerContainerFastVariant } from "@/lib/animations";
 
 interface VehiclesSectionProps {
   onBookVehicle?: (vehicleId: string) => void;
@@ -10,7 +12,13 @@ export default function VehiclesSection({ onBookVehicle }: VehiclesSectionProps)
   return (
     <section id="vehicles" className="section-padding bg-white">
       <div className="container-default">
-        <div className="text-center mb-12">
+        <motion.div 
+          className="text-center mb-12"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={fadeUpVariant}
+        >
           <div className="inline-flex items-center gap-2 bg-navy/10 text-navy text-sm font-semibold px-4 py-2 rounded-full mb-4">
             Our Fleet
           </div>
@@ -18,18 +26,31 @@ export default function VehiclesSection({ onBookVehicle }: VehiclesSectionProps)
           <p className="text-gray-500 max-w-xl mx-auto">
             From compact sedans to large coaches — all well-maintained, GPS-tracked and driven by experienced professionals.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={staggerContainerFastVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {VEHICLES.map((vehicle) => (
-            <div key={vehicle.id} className="card-premium group hover:-translate-y-1 transition-transform duration-300 overflow-hidden">
+            <motion.div 
+              key={vehicle.id} 
+              variants={fadeUpVariant}
+              whileHover={{ y: -8, transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="card-premium group overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-xl rounded-2xl transition-shadow"
+            >
               {vehicle.popular && (
                 <div className="bg-orange-brand text-white text-xs font-bold px-4 py-1.5 text-center">
                   Most Popular
                 </div>
               )}
-              <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-                <img
+              <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 overflow-hidden">
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
                   src={vehicle.image}
                   alt={vehicle.name}
                   className="h-36 object-contain mix-blend-multiply"
@@ -62,19 +83,21 @@ export default function VehiclesSection({ onBookVehicle }: VehiclesSectionProps)
                 <div className="text-xs text-gray-400 mb-4">
                   Min {vehicle.minimumKm} km • Driver ₹{vehicle.driverAllowancePerDay}/day
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     const el = document.getElementById("trip-planner");
                     if (el) el.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="w-full btn-navy py-2.5 text-sm"
+                  className="w-full btn-navy py-2.5 text-sm rounded-lg"
                 >
                   Book This Vehicle
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

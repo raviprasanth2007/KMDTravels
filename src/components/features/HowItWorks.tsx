@@ -1,4 +1,6 @@
 import { MapPin, Car, IndianRupee, CalendarCheck, Navigation } from "lucide-react";
+import { motion } from "framer-motion";
+import { fadeUpVariant, staggerContainerVariant } from "@/lib/animations";
 
 const STEPS = [
   { num: "01", icon: MapPin, title: "Enter Trip Details", desc: "Enter your pickup, destination, date and passenger count." },
@@ -10,9 +12,15 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section className="section-padding bg-gray-50">
+    <section className="section-padding bg-gray-50 overflow-hidden">
       <div className="container-default">
-        <div className="text-center mb-14">
+        <motion.div 
+          className="text-center mb-14"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={fadeUpVariant}
+        >
           <div className="inline-flex items-center gap-2 bg-blue-100 text-travel-blue text-sm font-semibold px-4 py-2 rounded-full mb-4">
             Simple Process
           </div>
@@ -20,33 +28,60 @@ export default function HowItWorks() {
           <p className="text-gray-500 max-w-lg mx-auto">
             Book your trip in minutes. No registration, no hidden fees.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="relative">
+        <motion.div 
+          className="relative"
+          variants={staggerContainerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {/* Connector line (desktop) */}
-          <div className="hidden lg:block absolute top-10 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-travel-blue/20 via-orange-brand/40 to-travel-blue/20" />
+          <div className="hidden lg:block absolute top-10 left-[10%] right-[10%] h-0.5 bg-gray-200">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-travel-blue/50 via-orange-brand to-travel-blue/50"
+              initial={{ width: "0%" }}
+              whileInView={{ width: "100%" }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {STEPS.map((step, idx) => {
               const Icon = step.icon;
               return (
-                <div key={step.num} className="flex flex-col items-center text-center group">
+                <motion.div 
+                  key={step.num} 
+                  variants={fadeUpVariant}
+                  className="flex flex-col items-center text-center group"
+                >
                   <div className="relative mb-5">
-                    <div className="w-20 h-20 bg-white border-2 border-gray-200 group-hover:border-orange-brand rounded-2xl flex flex-col items-center justify-center shadow-md transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1">
+                    <motion.div 
+                      whileHover={{ scale: 1.1, rotate: -5, borderColor: "#EF6C00" }}
+                      className="w-20 h-20 bg-white border-2 border-gray-200 rounded-2xl flex flex-col items-center justify-center shadow-md transition-colors duration-300"
+                    >
                       <Icon className="w-7 h-7 text-travel-blue mb-1" />
                       <span className="text-[10px] font-bold text-gray-400">{step.num}</span>
-                    </div>
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-brand rounded-full flex items-center justify-center">
+                    </motion.div>
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ type: "spring", delay: 0.3 + idx * 0.1 }}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-orange-brand rounded-full flex items-center justify-center shadow-sm"
+                    >
                       <span className="text-white text-[10px] font-bold">{idx + 1}</span>
-                    </div>
+                    </motion.div>
                   </div>
                   <h3 className="font-bold text-gray-900 mb-2 text-sm">{step.title}</h3>
                   <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
-                </div>
+                </motion.div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

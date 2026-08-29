@@ -4,6 +4,8 @@ import { Vehicle } from "@/constants/vehicles";
 import { formatCurrency } from "@/lib/fareCalculator";
 import { formatDate } from "@/lib/utils";
 import { KMD_CONFIG } from "@/constants/config";
+import { motion } from "framer-motion";
+import { useSmoothNumber, scaleInVariant, staggerContainerVariant, fadeUpVariant } from "@/lib/animations";
 
 interface FareBreakdownProps {
   fare: FareBreakdownType;
@@ -13,27 +15,40 @@ interface FareBreakdownProps {
 }
 
 export default function FareBreakdown({ fare, trip, vehicle, onBook }: FareBreakdownProps) {
+  // Smooth animated numbers
+  const animatedBaseFare = useSmoothNumber(fare.baseFare);
+  const animatedDriverAllowance = useSmoothNumber(fare.driverAllowance);
+  const animatedToll = useSmoothNumber(fare.tollEstimate);
+  const animatedSubtotal = useSmoothNumber(fare.subtotal);
+  const animatedGst = useSmoothNumber(fare.gstAmount);
+  const animatedTotal = useSmoothNumber(fare.finalFare);
+
   const rows = [
     {
       label: `Distance Fare (${fare.billableDistance} km × ₹${fare.ratePerKm}/km)`,
-      amount: fare.baseFare,
+      amount: animatedBaseFare,
       note: fare.minimumKmApplied
         ? `Minimum billing: ${vehicle.minimumKm} km applied (actual: ${fare.actualDistance} km)`
         : undefined,
     },
     {
       label: `Driver Allowance (₹${vehicle.driverAllowancePerDay}/day × ${fare.tripDays} day${fare.tripDays > 1 ? "s" : ""})`,
-      amount: fare.driverAllowance,
+      amount: animatedDriverAllowance,
     },
     {
       label: "Toll & Parking (Estimated)",
-      amount: fare.tollEstimate,
+      amount: animatedToll,
       note: "Actual toll charges may vary",
     },
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden fade-in">
+    <motion.div 
+      className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden"
+      variants={scaleInVariant}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-navy to-navy-light p-6 text-white">
         <h3 className="font-bold text-xl mb-3">Estimated Trip Fare</h3>
@@ -86,9 +101,14 @@ export default function FareBreakdown({ fare, trip, vehicle, onBook }: FareBreak
         )}
 
         {/* Fare rows */}
-        <div className="space-y-3 mb-5">
+        <motion.div 
+          className="space-y-3 mb-5"
+          variants={staggerContainerVariant}
+          initial="hidden"
+          animate="visible"
+        >
           {rows.map((row) => (
-            <div key={row.label}>
+            <motion.div key={row.label} variants={fadeUpVariant}>
               <div className="flex items-center justify-between py-2.5 border-b border-gray-100">
                 <span className="text-gray-600 text-sm">{row.label}</span>
                 <span className="font-semibold text-gray-800">{formatCurrency(row.amount)}</span>
@@ -96,34 +116,52 @@ export default function FareBreakdown({ fare, trip, vehicle, onBook }: FareBreak
               {row.note && (
                 <p className="text-xs text-gray-400 mt-1 ml-1">{row.note}</p>
               )}
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Subtotal */}
         <div className="flex items-center justify-between py-3 border-t border-gray-200 text-gray-700">
           <span className="font-medium">Subtotal</span>
-          <span className="font-semibold">{formatCurrency(fare.subtotal)}</span>
+          <span className="font-semibold">{formatCurrency(animatedSubtotal)}</span>
         </div>
         <div className="flex items-center justify-between py-2.5 text-gray-600">
           <span className="text-sm">GST ({fare.gstPercent}%)</span>
-          <span className="text-sm font-medium">{formatCurrency(fare.gstAmount)}</span>
+          <span className="text-sm font-medium">{formatCurrency(animatedGst)}</span>
         </div>
 
         {/* Final fare */}
-        <div className="flex items-center justify-between bg-navy rounded-xl p-5 mt-4">
+        <motion.div 
+          className="flex items-center justify-between bg-navy rounded-xl p-5 mt-4 overflow-hidden relative"
+          initial={{ scale: 0.98 }}
+          animate={{ scale: 1 }}
+          key={fare.finalFare} // Force re-render animation when total changes significantly? No, key re-renders whole component. Let's just animate color/scale.
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
+          <motion.div 
+            className="absolute inset-0 bg-white/5"
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+          />
           <div>
-            <div className="text-white font-bold text-lg">Estimated Total</div>
-            <div className="text-blue-300 text-xs mt-0.5">Inclusive of GST</div>
+            <div className="text-white font-bold text-lg relative z-10">Estimated Total</div>
+            <div className="text-blue-300 text-xs mt-0.5 relative z-10">Inclusive of GST</div>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-orange-brand">{formatCurrency(fare.finalFare)}</div>
+          <div className="text-right relative z-10">
+            <motion.div 
+              className="text-3xl font-bold text-orange-brand"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 0.3 }}
+              key={animatedTotal} // Very slight pulse on total change
+            >
+              {formatCurrency(animatedTotal)}
+            </motion.div>
             <div className="text-blue-300 text-xs mt-0.5">
               {formatDate(trip.travelDate)}
               {trip.returnDate ? ` → ${formatDate(trip.returnDate)}` : ""}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <p className="text-xs text-gray-400 mt-3 text-center">
           * Final fare may vary slightly based on actual tolls, parking, route changes and trip requirements.
@@ -131,26 +169,35 @@ export default function FareBreakdown({ fare, trip, vehicle, onBook }: FareBreak
 
         {/* Action buttons */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, boxShadow: "0px 8px 15px rgba(239, 108, 0, 0.2)" }}
+            whileTap={{ scale: 0.98 }}
             onClick={onBook}
-            className="btn-primary flex items-center justify-center gap-2 py-4 shadow-lg"
+            className="btn-primary flex items-center justify-center gap-2 py-4 shadow-lg relative overflow-hidden group"
           >
-            <CheckCircle className="w-5 h-5" />
-            Book This Trip
-          </button>
-          <a
+            <span className="relative z-10 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              Book This Trip
+            </span>
+            <motion.div 
+              className="absolute inset-0 bg-white/20 -skew-x-12 -translate-x-full group-hover:animate-[shine_1s_ease-out]" 
+            />
+          </motion.button>
+          <motion.a
+            whileHover={{ scale: 1.02, boxShadow: "0px 8px 15px rgba(34, 197, 94, 0.2)" }}
+            whileTap={{ scale: 0.98 }}
             href={`https://wa.me/${KMD_CONFIG.whatsappNumber}?text=${encodeURIComponent(
               `Hello KMD Travels! I need a fare quote.\n\nPickup: ${trip.pickup}\nDestination: ${trip.destination}\nPassengers: ${trip.passengers}\nDate: ${formatDate(trip.travelDate)}\nVehicle: ${vehicle.name}\nEstimated Fare: ${formatCurrency(fare.finalFare)}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-lg transition-all duration-200"
+            className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-lg transition-colors duration-200"
           >
             <MessageCircle className="w-5 h-5" />
             Enquire on WhatsApp
-          </a>
+          </motion.a>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

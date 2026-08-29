@@ -2,6 +2,8 @@ import { Car, Info } from "lucide-react";
 import VehicleCard from "./VehicleCard";
 import { VEHICLES, getRecommendedVehicle } from "@/constants/vehicles";
 import { TripDetails } from "@/types/booking";
+import { motion } from "framer-motion";
+import { staggerContainerFastVariant, fadeUpVariant } from "@/lib/animations";
 
 interface VehicleSelectorProps {
   trip: TripDetails;
@@ -14,7 +16,11 @@ export default function VehicleSelector({ trip, selectedVehicleId, onSelect }: V
   const eligibleCount = VEHICLES.filter((v) => v.capacity >= trip.passengers).length;
 
   return (
-    <div>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={fadeUpVariant}
+    >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Car className="w-6 h-6 text-travel-blue" />
@@ -28,15 +34,21 @@ export default function VehicleSelector({ trip, selectedVehicleId, onSelect }: V
       </div>
 
       {eligibleCount === 0 ? (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-5 text-red-700">
+        <motion.div 
+          variants={fadeUpVariant}
+          className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-5 text-red-700"
+        >
           <Info className="w-5 h-5 shrink-0" />
           <div>
             <div className="font-semibold">No vehicles available</div>
             <div className="text-sm">Maximum passenger capacity is 20. Please reduce passenger count.</div>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 gap-5"
+          variants={staggerContainerFastVariant}
+        >
           {VEHICLES.map((vehicle) => (
             <VehicleCard
               key={vehicle.id}
@@ -47,8 +59,8 @@ export default function VehicleSelector({ trip, selectedVehicleId, onSelect }: V
               passengers={trip.passengers}
             />
           ))}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
