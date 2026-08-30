@@ -1,7 +1,7 @@
 import { Phone, MessageCircle, Star, Shield, Award } from "lucide-react";
 import { KMD_CONFIG } from "@/constants/config";
-import heroBg from "@/assets/hero-bg.jpg";
 import { useState } from "react";
+import heroVideo from "@/assets/kmd-travels-hero.mp4";
 import { motion, useReducedMotion } from "framer-motion";
 import { fadeUpVariant, heroStaggerVariant } from "@/lib/animations";
 
@@ -11,17 +11,34 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onPlanTrip }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
-  const [_unused] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Hero Background Image */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <img
-          src={heroBg}
-          alt="KMD Travels hero background"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+      {/* Cinematic Video Background */}
+      <div className="absolute inset-0 bg-navy overflow-hidden pointer-events-none">
+        {/* Dynamic Motion Video */}
+        {!shouldReduceMotion && (
+          <motion.video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            onCanPlay={() => setIsVideoLoaded(true)}
+            onLoadedData={() => setIsVideoLoaded(true)}
+            onError={(e) => console.error("KMD Hero Video failed to load:", e)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isVideoLoaded ? 0.45 : 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="absolute min-w-full min-h-full w-auto h-auto object-cover top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          >
+            <source 
+              src={heroVideo}
+              type="video/mp4" 
+            />
+          </motion.video>
+        )}
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/75 to-navy/50" />

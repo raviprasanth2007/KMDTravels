@@ -1,6 +1,8 @@
 import { MapPin, ArrowLeftRight, Plane, Train, Users, Briefcase, Camera } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { fadeUpVariant, staggerContainerVariant } from "@/lib/animations";
+import { useState } from "react";
+import servicesVideo from "@/assets/kmd-travels-services.mp4";
 
 const SERVICES = [
   { icon: MapPin, title: "Outstation Taxi", desc: "Comfortable outstation trips with experienced drivers across all Indian states." },
@@ -15,8 +17,32 @@ const SERVICES = [
 ];
 
 export default function ServicesSection() {
+  const shouldReduceMotion = useReducedMotion();
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
   return (
     <section id="services" className="relative section-padding bg-navy overflow-hidden">
+      {/* Cinematic Video Background Layer */}
+      <div className="absolute inset-0 pointer-events-none z-0 bg-navy">
+        {!shouldReduceMotion && (
+          <motion.video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            onCanPlay={() => setIsVideoLoaded(true)}
+            onLoadedData={() => setIsVideoLoaded(true)}
+            onError={(e) => console.error("KMD Services Video failed to load:", e)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isVideoLoaded ? 0.45 : 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            className="absolute min-w-full min-h-full w-auto h-auto object-cover top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          >
+            <source src={servicesVideo} type="video/mp4" />
+          </motion.video>
+        )}
+      </div>
 
       <div className="container-default relative z-10">
         <motion.div 
